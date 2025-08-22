@@ -23,13 +23,14 @@ namespace RestauantBookingAPI.Services
                 Description = m.Description,
                 Price = m.Price,
                 Category = m.Category,
-                IsPopular = m.IsPopular
+                IsPopular = m.IsPopular,
+                ImageUrl = m.ImageUrl
             }).ToList();
 
             return menuItemDTO;
         }
 
-        public async Task<MenuItemDTO> GetMenuItemByIdAsync(int menuItemId)
+        public async Task<MenuItemDTO?> GetMenuItemByIdAsync(int menuItemId)
         {
             var menuItem = await _menuItemRepository.GetMenuItemByIdAsync(menuItemId);
             if (menuItem == null)
@@ -43,23 +44,31 @@ namespace RestauantBookingAPI.Services
                 Description = menuItem.Description,
                 Price = menuItem.Price,
                 Category = menuItem.Category,
-                IsPopular = menuItem.IsPopular
+                IsPopular = menuItem.IsPopular,
+                ImageUrl = menuItem.ImageUrl
             };
         }
         public async Task<int> AddMenuItemAsync(MenuItemDTO menuItemDTO)
         {
+            ArgumentNullException.ThrowIfNull(menuItemDTO);
+            ArgumentException.ThrowIfNullOrEmpty(menuItemDTO.Name);
+            ArgumentException.ThrowIfNullOrEmpty(menuItemDTO.Category);
             var menuItem = new MenuItem
             {
                 Name = menuItemDTO.Name,
                 Description = menuItemDTO.Description,
                 Price = menuItemDTO.Price,
                 Category = menuItemDTO.Category,
-                IsPopular = menuItemDTO.IsPopular
+                IsPopular = menuItemDTO.IsPopular,
+                ImageUrl = menuItemDTO.ImageUrl ?? string.Empty
             };
             return await _menuItemRepository.AddMenuItemAsync(menuItem);
         }
         public async Task<bool> UpdateMenuItemAsync(MenuItemDTO menuItemDTO)
         {
+            ArgumentNullException.ThrowIfNull(menuItemDTO);
+            ArgumentException.ThrowIfNullOrEmpty(menuItemDTO.Name);
+            ArgumentException.ThrowIfNullOrEmpty(menuItemDTO.Category);
             var menuItem = new MenuItem
             {
                 Id = menuItemDTO.Id,
@@ -67,7 +76,8 @@ namespace RestauantBookingAPI.Services
                 Description = menuItemDTO.Description,
                 Price = menuItemDTO.Price,
                 Category = menuItemDTO.Category,
-                IsPopular = menuItemDTO.IsPopular
+                IsPopular = menuItemDTO.IsPopular,
+                ImageUrl = menuItemDTO.ImageUrl ?? string.Empty
             };
             return await _menuItemRepository.UpdateMenuItemAsync(menuItem);
         }
