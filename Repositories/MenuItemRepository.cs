@@ -38,12 +38,11 @@ namespace RestauantBookingAPI.Repositories
                 .ToListAsync();
             return menuItems;
         }
-        public async Task<MenuItem> GetMenuItemByIdAsync(int menuId)
+        public async Task<MenuItem?> GetMenuItemByIdAsync(int menuId)
         {
-            var menuItem = await _context.MenuItems
+            return await _context.MenuItems
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.Id == menuId);
-            return menuItem;
         }
         public async Task<bool> UpdateMenuItemAsync(MenuItem menuItem)
         {
