@@ -1,9 +1,9 @@
-﻿using RestauantBookingAPI.Services.IServices;
-using RestauantBookingAPI.Repositories.IRepositores;
-using RestauantBookingAPI.DTOs;
-using RestauantBookingAPI.Models.Entities;
+﻿using RestaurantBookingAPI.Services.IServices;
+using RestaurantBookingAPI.Repositories.IRepositores;
+using RestaurantBookingAPI.DTOs;
+using RestaurantBookingAPI.Models.Entities;
 
-namespace RestauantBookingAPI.Services
+namespace RestaurantBookingAPI.Services
 {
     public class MenuItemService : IMenuItemService
     {
@@ -12,7 +12,7 @@ namespace RestauantBookingAPI.Services
         {
             _menuItemRepository = menuItemRepository; 
         }
-        public async Task<List<MenuItemDTO>> GetAllMenuItemsAsync()
+        public async Task<IEnumerable<MenuItemDTO>> GetAllMenuItemsAsync()
         {
             var menuItems = await _menuItemRepository.GetAllMenuItemsAsync();
             

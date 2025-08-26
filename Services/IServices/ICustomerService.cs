@@ -1,6 +1,6 @@
-﻿using RestauantBookingAPI.DTOs;
+﻿using RestaurantBookingAPI.DTOs;
 
-namespace RestauantBookingAPI.Services.IServices
+namespace RestaurantBookingAPI.Services.IServices
 {
     public interface ICustomerService
     {

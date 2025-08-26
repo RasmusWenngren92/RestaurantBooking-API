@@ -1,4 +1,4 @@
-﻿namespace RestauantBookingAPI.Services.IServices
+﻿namespace RestaurantBookingAPI.Services.IServices
 {
     internal interface IAdminService
     {

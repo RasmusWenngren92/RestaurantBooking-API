@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RestauantBookingAPI.Data;
-using RestauantBookingAPI.Models.Entities;
-using RestauantBookingAPI.Repositories.IRepositores;
+using RestaurantBookingAPI.Data;
+using RestaurantBookingAPI.Models.Entities;
+using RestaurantBookingAPI.Repositories.IRepositores;
 
-namespace RestauantBookingAPI.Repositories
+namespace RestaurantBookingAPI.Repositories
 {
     public class CustomerRepository : ICustomerRepository
     {
@@ -12,7 +12,7 @@ namespace RestauantBookingAPI.Repositories
         {
             _context = context;
         }
-        public async Task<List<Customer>> GetAllCustomersAsync()
+        public async Task<IEnumerable<Customer>> GetAllCustomersAsync()
         {
             return await _context.Customers
                 .AsNoTracking()

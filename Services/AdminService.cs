@@ -1,4 +1,4 @@
-﻿namespace RestauantBookingAPI.Services
+﻿namespace RestaurantBookingAPI.Services
 {
     internal class AdminService
     {

@@ -1,10 +1,10 @@
-﻿using RestauantBookingAPI.Models.Entities;
+﻿using RestaurantBookingAPI.Models.Entities;
 
-namespace RestauantBookingAPI.Repositories.IRepositores
+namespace RestaurantBookingAPI.Repositories.IRepositores
 {
     public interface ICustomerRepository
     {
-        Task<List<Customer>> GetAllCustomersAsync();
+        Task<IEnumerable<Customer>> GetAllCustomersAsync();
         Task<Customer?> GetCustomerByIdAsync(int customerId);
         Task<int> AddCustomerAsync(Customer customer);
         Task<bool> UpdateCustomerAsync(Customer customer);

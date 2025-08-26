@@ -1,10 +1,10 @@
 ﻿using System.Reflection.Metadata.Ecma335;
 using Microsoft.EntityFrameworkCore;
-using RestauantBookingAPI.Data;
-using RestauantBookingAPI.Models.Entities;
-using RestauantBookingAPI.Repositories.IRepositores;
+using RestaurantBookingAPI.Data;
+using RestaurantBookingAPI.Models.Entities;
+using RestaurantBookingAPI.Repositories.IRepositores;
 
-namespace RestauantBookingAPI.Repositories
+namespace RestaurantBookingAPI.Repositories
 {
     public class MenuItemRepository : IMenuItemRepository
     {
@@ -31,7 +31,7 @@ namespace RestauantBookingAPI.Repositories
             }
             return false;
         }
-        public async Task<List<MenuItem>> GetAllMenuItemsAsync()
+        public async Task<IEnumerable<MenuItem>> GetAllMenuItemsAsync()
         {
             var menuItems = await _context.MenuItems
                 .AsNoTracking()

@@ -1,12 +1,12 @@
 
 using Microsoft.EntityFrameworkCore;
-using RestauantBookingAPI.Data;
-using RestauantBookingAPI.Repositories;
-using RestauantBookingAPI.Repositories.IRepositores;
-using RestauantBookingAPI.Services.IServices;
-using RestauantBookingAPI.Services;
+using RestaurantBookingAPI.Data;
+using RestaurantBookingAPI.Repositories;
+using RestaurantBookingAPI.Repositories.IRepositores;
+using RestaurantBookingAPI.Services.IServices;
+using RestaurantBookingAPI.Services;
 
-namespace RestauantBooking_API
+namespace RestaurantBookingAPI
 {
     public class Program
     {

@@ -1,9 +1,9 @@
-﻿using RestauantBookingAPI.DTOs;
-using RestauantBookingAPI.Models.Entities;
-using RestauantBookingAPI.Repositories.IRepositores;
-using RestauantBookingAPI.Services.IServices;
+﻿using RestaurantBookingAPI.DTOs;
+using RestaurantBookingAPI.Models.Entities;
+using RestaurantBookingAPI.Repositories.IRepositores;
+using RestaurantBookingAPI.Services.IServices;
 
-namespace RestauantBookingAPI.Services
+namespace RestaurantBookingAPI.Services
 {
     public class CustomerService : ICustomerService
     {

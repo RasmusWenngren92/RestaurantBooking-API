@@ -1,23 +1,25 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RestauantBookingAPI.Models.Entities;
+using RestaurantBookingAPI.Models.Entities;
 
-namespace RestauantBookingAPI.Data
+namespace RestaurantBookingAPI.Data
 {
     public class RestaurantDBContext(DbContextOptions<RestaurantDBContext> options) : DbContext(options)
 
     {
         //public DbSet<Admin> Admins { get; set; }
-        //public DbSet<Booking> Bookings { get; set; }
+        public DbSet<Table> Tables { get; set; }
+        public DbSet<Booking> Bookings { get; set; }
         public DbSet<MenuItem> MenuItems { get; set; }
         public DbSet<Customer> Customers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
+        {   
+            var tableEntity = modelBuilder.Entity<Table>();
             //var adminEntity = modelBuilder.Entity<Admin>();
-            //var bookingEntity = modelBuilder.Entity<Booking>();
+            var bookingEntity = modelBuilder.Entity<Booking>();   
             var menuItemEntity = modelBuilder.Entity<MenuItem>();
             var customerEntity = modelBuilder.Entity<Customer>();
-
+           
             modelBuilder.Entity<MenuItem>(entity =>
             {
                 entity.HasKey(e => e.Id);

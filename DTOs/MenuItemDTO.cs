@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace RestauantBookingAPI.DTOs
+namespace RestaurantBookingAPI.DTOs
 {
     public class MenuItemDTO
     {

@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using RestauantBookingAPI.Data;
+using RestaurantBookingAPI.Data;
 
 #nullable disable
 
-namespace RestauantBookingAPI.Migrations
+namespace RestaurantBookingAPI.Migrations
 {
     [DbContext(typeof(RestaurantDBContext))]
     [Migration("20250822120419_InitialCreate")]

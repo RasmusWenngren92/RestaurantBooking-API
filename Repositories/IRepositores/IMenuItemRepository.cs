@@ -1,10 +1,10 @@
-﻿using RestauantBookingAPI.Models.Entities;
+﻿using RestaurantBookingAPI.Models.Entities;
 
-namespace RestauantBookingAPI.Repositories.IRepositores
+namespace RestaurantBookingAPI.Repositories.IRepositores
 {
     public interface IMenuItemRepository
     {
-        Task<List<MenuItem>> GetAllMenuItemsAsync();
+        Task<IEnumerable<MenuItem>> GetAllMenuItemsAsync();
         Task<MenuItem?> GetMenuItemByIdAsync(int menuId);
         Task<int> AddMenuItemAsync(MenuItem menuItem);
         Task<bool> UpdateMenuItemAsync(MenuItem menuItem);

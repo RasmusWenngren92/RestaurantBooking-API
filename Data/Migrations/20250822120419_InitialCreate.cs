@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace RestauantBookingAPI.Migrations
+namespace RestaurantBookingAPI.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration

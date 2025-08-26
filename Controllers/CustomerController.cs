@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using RestauantBookingAPI.DTOs;
-using RestauantBookingAPI.Services.IServices;
+using RestaurantBookingAPI.DTOs;
+using RestaurantBookingAPI.Services.IServices;
 
-namespace RestauantBookingAPI.Controllers
+namespace RestaurantBookingAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

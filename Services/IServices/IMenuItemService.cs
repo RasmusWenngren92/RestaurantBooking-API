@@ -1,10 +1,10 @@
-﻿using RestauantBookingAPI.DTOs;
+﻿using RestaurantBookingAPI.DTOs;
 
-namespace RestauantBookingAPI.Services.IServices
+namespace RestaurantBookingAPI.Services.IServices
 {
     public interface IMenuItemService
     {
-        Task<List<MenuItemDTO>> GetAllMenuItemsAsync();
+        Task<IEnumerable<MenuItemDTO>> GetAllMenuItemsAsync();
         Task<MenuItemDTO?> GetMenuItemByIdAsync(int menuId);
         Task<int> AddMenuItemAsync(MenuItemDTO menuItemDTO);
         Task<bool> UpdateMenuItemAsync(MenuItemDTO menuItemDTO);

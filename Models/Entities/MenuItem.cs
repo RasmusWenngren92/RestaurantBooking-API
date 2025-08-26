@@ -1,4 +1,4 @@
-﻿namespace RestauantBookingAPI.Models.Entities
+﻿namespace RestaurantBookingAPI.Models.Entities
 {
     public class MenuItem
     {
