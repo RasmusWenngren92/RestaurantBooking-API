@@ -4,6 +4,11 @@ namespace RestaurantBookingAPI.Services.IServices
 {
     public interface ITableService
     {
+        Task<(bool IsValid, string ErrorMessage)> ValidateBookingTimeAsync(DateTime dateTime, int partySize);
+
+        Task<(bool IsAvailable, int? FirstAvailableTableId, IEnumerable<int> AllAvailableTableIds)> CheckTableAvailabilityAsync(DateTime dateTime, int partySize);
+        Task<AvailabilityResponseDTO> GetTableAvailabilityAsync(AvailabilityRequestDTO availabilityRequest);
+        Task<IEnumerable<int>> GetAvailableTablesByTimeAsync(DateTime requestedTime, int partySize);
         Task<TableDTO?> GetTableByIdAsync(int id);
         Task<IEnumerable<TableDTO>> GetAllTablesAsync();
         Task<TableDTO> CreateTableAsync(CreateTableDTO createTableDto);
@@ -19,6 +24,7 @@ namespace RestaurantBookingAPI.Services.IServices
         
         Task<bool> SetTableAvailabilityAsync(int tableId, bool isAvailable);
         Task<bool> TableNumberExistsAsync(int tableNumber);
+
 
         
         Task<IEnumerable<TableDTO>> GetTablesSuitableForPartySizeAsync(int partySize);

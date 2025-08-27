@@ -215,5 +215,79 @@ namespace RestaurantBookingAPI.Services
 
             return isCurrentlyBooked ? "Occupied" : "Available";
         }
+
+        public async Task<(bool IsValid, string ErrorMessage)> ValidateBookingTimeAsync(DateTime dateTime, int partySize)
+        {
+            if (partySize < 1 || partySize > 8)
+            {
+                return (false, "Party size must be between 1 and 8. For larger parties, please call the restaurant.");
+            }
+            if (dateTime <= DateTime.Now.AddHours(1))
+            {
+                return (false, "Booking must be made at least 1 hour in advance.");
+            }
+            var hour = dateTime.Hour;
+            if (hour < 10 || hour >= 22)
+            {
+                return (false, "Restaurant is open from 10:00 AM to 10:00 PM.");
+            }
+            if (dateTime.DayOfWeek == DayOfWeek.Sunday)
+            {
+                return (false, "Restaurant is closed on Sundays.");
+            }
+            return (true, string.Empty);
+        }
+
+        public async Task<(bool IsAvailable, int? FirstAvailableTableId, IEnumerable<int> AllAvailableTableIds)> CheckTableAvailabilityAsync(DateTime dateTime, int partySize)
+        {
+            var firstAvailable = await _bookingRepository.FindFirstAvailableTableAsync(dateTime, partySize);
+            var allAvailable = await _bookingRepository.GetAllAvailableTablesAsync(dateTime, partySize);
+
+            return (firstAvailable.HasValue, firstAvailable, allAvailable);
+        }
+        public async Task<AvailabilityResponseDTO> GetTableAvailabilityAsync(AvailabilityRequestDTO availabilityRequest)
+        {
+            var validation = await ValidateBookingTimeAsync(availabilityRequest.BookingDate, availabilityRequest.NumberOfGuests);
+            if (!validation.IsValid)
+            {
+                return new AvailabilityResponseDTO
+                {
+                    IsAvailable = false,
+                    Message = validation.ErrorMessage
+                };
+            }
+
+            var availableTableId = await _bookingRepository.FindFirstAvailableTableAsync(
+                availabilityRequest.BookingDate,
+                availabilityRequest.NumberOfGuests);
+
+            var allAvailableTables = await _bookingRepository.GetAllAvailableTablesAsync(
+                availabilityRequest.BookingDate,
+                availabilityRequest.NumberOfGuests);
+
+            if (availableTableId.HasValue)
+            {
+                var table = await _tableRepository.GetTableByIdAsync(availableTableId.Value);
+                return new AvailabilityResponseDTO
+                {
+                    IsAvailable = true,
+                    AvailableTableId = availableTableId,
+                    TableNumber = table?.TableNumber,
+                    AllAvailableTableIds = allAvailableTables.ToList(),
+                    Message = $"Table {table?.TableNumber} is available for {availabilityRequest.NumberOfGuests} guests at {availabilityRequest.BookingDate:yyyy-MM-dd HH:mm}."
+                };
+            }
+
+            return new AvailabilityResponseDTO
+            {
+                IsAvailable = false,
+                AllAvailableTableIds = allAvailableTables.ToList(),
+                Message = $"No tables available for {availabilityRequest.NumberOfGuests} guests at {availabilityRequest.BookingDate:yyyy-MM-dd HH:mm}."
+            };
+        }
+        public async Task<IEnumerable<int>> GetAvailableTablesByTimeAsync(DateTime requestedTime, int partySize)
+        {
+            return await _bookingRepository.GetAllAvailableTablesAsync(requestedTime, partySize);
+        }
     }
 }
