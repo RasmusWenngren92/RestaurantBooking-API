@@ -18,14 +18,6 @@ namespace RestaurantBookingAPI.Services.IServices
         Task<bool> CancelBookingAsync(int id);
         Task<bool> DeleteBookingAsync(int id);
 
-       
-        Task<AvailabilityResponseDTO> CheckAvailabilityAsync(AvailabilityRequestDTO availabilityRequest);
-        Task<bool> IsTimeSlotAvailableAsync(DateTime requestedTime, int partySize);
-
-     
-        Task<IEnumerable<int>> GetAllAvailableTablesAsync(DateTime requestedTime, int partySize);
-
-        
         Task<IEnumerable<BookingSummaryDTO>> GetTodayBookingsAsync(); 
         Task<IEnumerable<BookingSummaryDTO>> GetActiveBookingsAsync();
         Task<IEnumerable<BookingSummaryDTO>> GetUpcomingBookingsAsync(int days = 7);
@@ -34,8 +26,7 @@ namespace RestaurantBookingAPI.Services.IServices
         Task<bool> MarkBookingAsCompletedAsync(int id);
         Task<bool> MarkBookingAsNoShowAsync(int id);
 
-        
-        Task<bool> ValidateBookingTime(DateTime requestedTime); // Non-async version
+       
         Task<bool> CanModifyBookingAsync(int bookingId);
     }
 }

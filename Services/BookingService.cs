@@ -9,13 +9,13 @@ namespace RestaurantBookingAPI.Services
     public class BookingService : IBookingService
     {
         private readonly IBookingRepository _bookingRepository;
-        private readonly ITableRepository _tableRepository;
+        private readonly ITableService _tableService;
         private readonly ICustomerRepository _customerRepository;
 
-        public BookingService(IBookingRepository bookingRepository, ITableRepository tableRepository, ICustomerRepository customerRepository)
+        public BookingService(IBookingRepository bookingRepository, ITableService tableService, ICustomerRepository customerRepository)
         {
             _bookingRepository = bookingRepository;
-            _tableRepository = tableRepository;
+            _tableService = tableService;
             _customerRepository = customerRepository;
         }
         private static BookingDTO MapToBookingDTO(Booking booking)
@@ -73,9 +73,10 @@ namespace RestaurantBookingAPI.Services
 
         public async Task<BookingDTO> CreateBookingAsync(CreateBookingDTO createBookingDto)
         {
-            if (!await ValidateBookingTime(createBookingDto.StartDateTime))
+            var validation = await _tableService.ValidateBookingTimeAsync(createBookingDto.StartDateTime,createBookingDto.NumberOfGuests);
+            if (!validation.IsValid)
             {
-                throw new ArgumentException("Booking time must be in the future.");
+                throw new ArgumentException(validation.ErrorMessage);
             }
             var customer = await _customerRepository.GetCustomerByIdAsync(createBookingDto.CustomerId);
             if (customer == null)
@@ -151,51 +152,7 @@ namespace RestaurantBookingAPI.Services
             var fullBooking = await _bookingRepository.GetBookingByIdAsync(updatedBooking.Id);
             return MapToBookingDTO(fullBooking!);
         }
-        public async Task<AvailabilityResponseDTO> CheckAvailabilityAsync(AvailabilityRequestDTO availabilityRequest)
-        {
-            if (!await ValidateBookingTime(availabilityRequest.BookingDate))
-            {
-                return new AvailabilityResponseDTO
-                {
-                    IsAvailable = false,
-                    Message = "Booking time must be in the future."
-                };
-            }
-            var availableTableId = await _bookingRepository.FindFirstAvailableTableAsync(
-                availabilityRequest.BookingDate,
-                availabilityRequest.NumberOfGuests);
-            var allAvailableTables = await _bookingRepository.GetAllAvailableTablesAsync(
-                availabilityRequest.BookingDate,
-                availabilityRequest.NumberOfGuests);
-            if (availableTableId.HasValue)
-            {
-                var table = await _tableRepository.GetTableByIdAsync(availableTableId.Value);
-                return new AvailabilityResponseDTO
-                {
-                    IsAvailable = true,
-                    AvailableTableId = availableTableId,
-                    TableNumber = table?.TableNumber,
-                    AllAvailableTableIds = allAvailableTables.ToList(),
-                    Message = $"Table {table?.TableNumber} is available for {availabilityRequest.NumberOfGuests} guests at {availabilityRequest.BookingDate:yyyy-MM-dd HH:mm}."
-                };
-            }
-            return new AvailabilityResponseDTO
-            {
-                IsAvailable = false,
-                AllAvailableTableIds = allAvailableTables.ToList(),
-                Message = $"No tables available for {availabilityRequest.NumberOfGuests} guests at {availabilityRequest.BookingDate:yyyy-MM-dd HH:mm}."
-            };
-        }
-        public async Task<bool> IsTimeSlotAvailableAsync(DateTime requestedTime, int partySize)
-        {
-            var availableTableId = await _bookingRepository.FindFirstAvailableTableAsync(requestedTime, partySize);
-            return availableTableId.HasValue;
-        }
 
-        public async Task<IEnumerable<int>> GetAllAvailableTablesAsync(DateTime requestedTime, int partySize)
-        {
-            return await _bookingRepository.GetAllAvailableTablesAsync(requestedTime, partySize);
-        }
         public async Task<bool> CancelBookingAsync(int id)
         {
             var booking = await _bookingRepository.GetBookingByIdAsync(id);
@@ -250,23 +207,6 @@ namespace RestaurantBookingAPI.Services
             var bookings = await _bookingRepository.GetBookingsInTimeRangeAsync(startTime, endTime);
             return bookings.Where(b => b.Status == BookingStatus.Confirmed)
                           .Select(MapToBookingSummaryDTO);
-        }
-        public async Task<bool> ValidateBookingTime(DateTime requestedTime)
-        {
-            
-            if (requestedTime <= DateTime.Now.AddHours(2))
-                return false;
-
-            
-            var hour = requestedTime.Hour;
-            if (hour < 10 || hour >= 22)
-                return false;
-
-            
-            if (requestedTime.DayOfWeek == DayOfWeek.Sunday)
-                return false;
-
-            return true;
         }
 
         public async Task<bool> CanModifyBookingAsync(int bookingId)
