@@ -6,13 +6,10 @@ using RestaurantBookingAPI.Repositories.IRepositores;
 
 namespace RestaurantBookingAPI.Repositories
 {
-    public class BookingRepository : IBookingRepository
+    public class BookingRepository(RestaurantDBContext context) : IBookingRepository
     {
-        private readonly RestaurantDBContext _context;
-        public BookingRepository(RestaurantDBContext context)
-        {
-            _context = context;
-        }
+        private readonly RestaurantDBContext _context = context;
+
         public async Task<IEnumerable<Booking>> GetAllBookingsAsync()
         {
             return await _context.Bookings
