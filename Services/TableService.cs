@@ -1,8 +1,10 @@
 ﻿using RestauantBookingAPI.Models.Enums;
 using RestaurantBookingAPI.DTOs;
+using RestaurantBookingAPI.Mappers;
 using RestaurantBookingAPI.Models.Entities;
 using RestaurantBookingAPI.Repositories.IRepositores;
 using RestaurantBookingAPI.Services.IServices;
+
 
 namespace RestaurantBookingAPI.Services
 {
@@ -15,38 +17,17 @@ namespace RestaurantBookingAPI.Services
             _tableRepository = tableRepository;
             _bookingRepository = bookingRepository;
         }
-        private async Task<TableDTO> MapToTableDTOAsync(Table table)
-        {
-            
-            var activeBookings = await _bookingRepository.GetActiveBookingsAsync();
-            var currentBookings = activeBookings.Count(b => b.TableId == table.Id);
 
-            return new TableDTO
-            {
-                Id = table.Id,
-                TableNumber = table.TableNumber,
-                SeatingCapacity = table.SeatingCapacity,
-                IsAvailable = table.IsAvailable,
-                CurrentBookings = currentBookings
-            };
-        }
         public async Task<TableDTO?> GetTableByIdAsync(int id)
         {
             var table = await _tableRepository.GetTableByIdAsync(id);
-            return table != null ? await MapToTableDTOAsync(table) : null;
+            return table != null ? DomainMapper.ToTableDTO(table) : null;
         }
 
         public async Task<IEnumerable<TableDTO>> GetAllTablesAsync()
         {
             var tables = await _tableRepository.GetAllTablesAsync();
-            var tableDtos = new List<TableDTO>();
-
-            foreach (var table in tables)
-            {
-                tableDtos.Add(await MapToTableDTOAsync(table));
-            }
-
-            return tableDtos;
+            return tables.Select(DomainMapper.ToTableDTO);
         }
         public async Task<TableDTO> CreateTableAsync(CreateTableDTO createTableDto)
         {
@@ -64,7 +45,17 @@ namespace RestaurantBookingAPI.Services
             };
 
             var createdTable = await _tableRepository.CreateTableAsync(table);
-            return await MapToTableDTOAsync(createdTable);
+            return DomainMapper.ToTableDTO(createdTable);
+        }
+        public async Task<TableDTO?> GetTableWithBookingCountAsync(int id)
+        {
+            var table = await _tableRepository.GetTableByIdAsync(id);
+            if (table == null) return null;
+
+            var todayBookings = await _bookingRepository.GetBookingsByDateAsync(DateTime.Today);
+            var bookingCount = todayBookings.Count(b => b.TableId == id);
+
+            return DomainMapper.ToTableDTO(table, bookingCount);
         }
 
         public async Task<TableDTO> UpdateTableAsync(int id, UpdateTableDTO updateTableDto)
@@ -89,7 +80,7 @@ namespace RestaurantBookingAPI.Services
             existingTable.IsAvailable = updateTableDto.IsAvailable;
 
             var updatedTable = await _tableRepository.UpdateTableAsync(existingTable);
-            return await MapToTableDTOAsync(updatedTable);
+            return DomainMapper.ToTableDTO(updatedTable);
         }
         public async Task<bool> DeleteTableAsync(int id)
         {
@@ -110,22 +101,27 @@ namespace RestaurantBookingAPI.Services
         public async Task<IEnumerable<TableSummaryDTO>> GetTablesSummaryAsync()
         {
             var tables = await _tableRepository.GetAllTablesAsync();
-            var summaries = new List<TableSummaryDTO>();
+            var now = DateTime.Now;
+            var relevantBookings = await _bookingRepository.GetBookingsInTimeRangeAsync(
+                now.AddHours(-2), now.AddHours(2));
 
-            foreach (var table in tables)
+            return tables.Select(table =>
             {
-                var status = await GetTableStatusAsync(table.Id);
-                summaries.Add(new TableSummaryDTO
-                {
-                    Id = table.Id,
-                    TableNumber = table.TableNumber,
-                    SeatingCapacity = table.SeatingCapacity,
-                    IsAvailable = table.IsAvailable,
-                    Status = status
-                });
-            }
+                var status = CalculateTableStatus(table, relevantBookings.Where(b => b.TableId == table.Id), now);
+                return DomainMapper.ToTableSummaryDTO(table, status);
+            }).OrderBy(t => t.TableNumber);
+        }
 
-            return summaries.OrderBy(t => t.TableNumber);
+        private string CalculateTableStatus(Table table, IEnumerable<Booking> relevantBookings, DateTime now)
+        {
+            if (!table.IsAvailable) return "Unavailable";
+
+            var isCurrentlyBooked = relevantBookings.Any(b =>
+                b.Status == BookingStatus.Confirmed &&
+                b.StartDateTime <= now &&
+                b.StartDateTime.AddHours(2) > now);
+
+            return isCurrentlyBooked ? "Occupied" : "Available";
         }
 
         public async Task<IEnumerable<TableDTO>> GetAvailableTablesAsync()
@@ -135,7 +131,7 @@ namespace RestaurantBookingAPI.Services
 
             foreach (var table in tables)
             {
-                tableDtos.Add(await MapToTableDTOAsync(table));
+                tableDtos.Add(DomainMapper.ToTableDTO(table));
             }
 
             return tableDtos;
@@ -148,7 +144,7 @@ namespace RestaurantBookingAPI.Services
 
             foreach (var table in tables)
             {
-                tableDtos.Add(await MapToTableDTOAsync(table));
+                tableDtos.Add(DomainMapper.ToTableDTO(table));
             }
 
             return tableDtos;
@@ -156,7 +152,7 @@ namespace RestaurantBookingAPI.Services
         public async Task<TableDTO?> GetTableByNumberAsync(int tableNumber)
         {
             var table = await _tableRepository.GetTableByNumberAsync(tableNumber);
-            return table != null ? await MapToTableDTOAsync(table) : null;
+            return table != null ? DomainMapper.ToTableDTO(table) : null;
         }
 
         public async Task<IEnumerable<TableDTO>> GetTablesSuitableForPartySizeAsync(int partySize)
@@ -166,7 +162,7 @@ namespace RestaurantBookingAPI.Services
 
             foreach (var table in tables)
             {
-                tableDtos.Add(await MapToTableDTOAsync(table));
+                tableDtos.Add(DomainMapper.ToTableDTO(table));
             }
 
             return tableDtos;
@@ -215,6 +211,7 @@ namespace RestaurantBookingAPI.Services
 
             return isCurrentlyBooked ? "Occupied" : "Available";
         }
+        
 
         public async Task<(bool IsValid, string ErrorMessage)> ValidateBookingTimeAsync(DateTime dateTime, int partySize)
         {
@@ -245,6 +242,7 @@ namespace RestaurantBookingAPI.Services
 
             return (firstAvailable.HasValue, firstAvailable, allAvailable);
         }
+
         public async Task<AvailabilityResponseDTO> GetTableAvailabilityAsync(AvailabilityRequestDTO availabilityRequest)
         {
             var validation = await ValidateBookingTimeAsync(availabilityRequest.BookingDate, availabilityRequest.NumberOfGuests);
