@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantBookingAPI.DTOs;
 using RestaurantBookingAPI.Services.IServices;
@@ -7,10 +8,13 @@ namespace RestaurantBookingAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MenuItemController(IMenuItemService menuItemService, IConfiguration configuration) : ControllerBase
+    public class MenuItemController : ControllerBase
     {
-        private readonly IMenuItemService _menuItemService = menuItemService;
-        private readonly IConfiguration _configuration = configuration;
+        private readonly IMenuItemService _menuItemService;
+        public MenuItemController(IMenuItemService menuItemService, IConfiguration configuration)
+        {
+            _menuItemService = menuItemService;
+        }
 
         [HttpGet("GetAllMenuItems")]
         public async Task<ActionResult<List<MenuItemDTO>>> GetAllMenuItems()
@@ -22,44 +26,32 @@ namespace RestaurantBookingAPI.Controllers
         public async Task<ActionResult<MenuItemDTO>> GetMenuItemById(int menuId)
         {
             var menuItem = await _menuItemService.GetMenuItemByIdAsync(menuId);
-            if (menuItem == null)
-            {
-                return NotFound();
-            }
+ 
             return Ok(menuItem);
         }
+        [Authorize]
         [HttpPost("AddMenuItem")]
         public async Task<ActionResult<int>> AddMenuItem(MenuItemDTO menuItemDTO)
         {
-            if (menuItemDTO == null)
-            {
-                return BadRequest("Menu item cannot be null");
-            }
-            var menuItemId = await _menuItemService.AddMenuItemAsync(menuItemDTO);
-            return CreatedAtAction(nameof(GetMenuItemById), new { menuId = menuItemId }, menuItemId);
+
+            var result = await _menuItemService.AddMenuItemAsync(menuItemDTO);
+            return Ok(true);
         }
+        [Authorize]
         [HttpPut("UpdateMenuItem")]
         public async Task<ActionResult<bool>> UpdateMenuItem(MenuItemDTO menuItemDTO)
         {
-            if (menuItemDTO == null)
-            {
-                return BadRequest("Menu item cannot be null");
-            }
+
             var result = await _menuItemService.UpdateMenuItemAsync(menuItemDTO);
-            if (!result)
-            {
-                return NotFound();
-            }
+
             return Ok(result);
         }
+        [Authorize]
         [HttpDelete("DeleteMenuItem/{menuItemId}")]
         public async Task<ActionResult<bool>> DeleteMenuItem(int menuItemId)
         {
             var result = await _menuItemService.DeleteMenuItemAsync(menuItemId);
-            if (!result)
-            {
-                return NotFound();
-            }
+
             return Ok(result);
         }
     }
