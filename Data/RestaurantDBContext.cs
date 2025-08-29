@@ -3,10 +3,13 @@ using RestaurantBookingAPI.Models.Entities;
 
 namespace RestaurantBookingAPI.Data
 {
-    public class RestaurantDBContext(DbContextOptions<RestaurantDBContext> options) : DbContext(options)
+    public class RestaurantDBContext : DbContext
 
     {
-        //public DbSet<Admin> Admins { get; set; }
+        public RestaurantDBContext(DbContextOptions<RestaurantDBContext> options) : base(options)
+        {
+        }
+        public DbSet<Admin> Admins { get; set; }
         public DbSet<Table> Tables { get; set; }
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<MenuItem> MenuItems { get; set; }
@@ -14,11 +17,7 @@ namespace RestaurantBookingAPI.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {   
-            var tableEntity = modelBuilder.Entity<Table>();
-            //var adminEntity = modelBuilder.Entity<Admin>();
-            var bookingEntity = modelBuilder.Entity<Booking>();   
-            var menuItemEntity = modelBuilder.Entity<MenuItem>();
-            var customerEntity = modelBuilder.Entity<Customer>();
+
            
             modelBuilder.Entity<MenuItem>(entity =>
             {
@@ -110,6 +109,36 @@ namespace RestaurantBookingAPI.Data
                 
                 entity.HasIndex(e => new { e.CustomerId, e.StartDateTime })
                     .HasDatabaseName("IX_Bookings_CustomerBookings");
+            });
+            modelBuilder.Entity<Admin>(entity =>
+            {
+                // Primary Key
+                entity.HasKey(a => a.Id);
+
+                entity.Property(a => a.Username)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.HasIndex(a => a.Username)
+                    .IsUnique()
+                    .HasDatabaseName("IX_Admin_Username"); 
+
+                entity.Property(a => a.Email)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.HasIndex(a => a.Email)
+                    .IsUnique()
+                    .HasDatabaseName("IX_Admin_Email"); 
+
+                entity.Property(a => a.PasswordHash)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(a => a.Role)
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .HasDefaultValue("Admin"); 
             });
 
         }
