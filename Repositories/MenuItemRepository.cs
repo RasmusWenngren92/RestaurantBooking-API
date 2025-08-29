@@ -6,13 +6,9 @@ using RestaurantBookingAPI.Repositories.IRepositores;
 
 namespace RestaurantBookingAPI.Repositories
 {
-    public class MenuItemRepository : IMenuItemRepository
+    public class MenuItemRepository(RestaurantDBContext context) : IMenuItemRepository
     {
-      private readonly RestaurantDBContext _context;
-        public MenuItemRepository(RestaurantDBContext context)
-        {
-            _context = context;
-        }
+      private readonly RestaurantDBContext _context = context;
 
         public async Task<int> AddMenuItemAsync(MenuItem menuItem)
         {
