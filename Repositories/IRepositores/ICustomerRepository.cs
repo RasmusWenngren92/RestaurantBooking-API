@@ -9,5 +9,6 @@ namespace RestaurantBookingAPI.Repositories.IRepositores
         Task<int> AddCustomerAsync(Customer customer);
         Task<bool> UpdateCustomerAsync(Customer customer);
         Task<bool> DeleteCustomerAsync(int customerId);
+        Task<Customer?> GetCustomerByEmailAsync(string email);
     }
 }

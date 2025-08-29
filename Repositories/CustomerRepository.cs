@@ -48,5 +48,11 @@ namespace RestaurantBookingAPI.Repositories
             }
             return false;
         }
+        public async Task<Customer?> GetCustomerByEmailAsync(string email)
+        {
+            return await _context.Customers
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Email == email);
+        }
     }
 }
