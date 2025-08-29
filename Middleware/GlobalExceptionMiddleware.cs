@@ -1,8 +1,10 @@
-﻿using System.Net;
+﻿using System.Linq.Expressions;
+using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using RestaurantBookingAPI.Data;
 
 namespace RestauantBookingAPI.Middleware
 {
@@ -11,6 +13,7 @@ namespace RestauantBookingAPI.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<GlobalExceptionMiddleware> _logger;
+        
 
         public GlobalExceptionMiddleware(RequestDelegate next,ILogger<GlobalExceptionMiddleware> logger)
         {
@@ -28,9 +31,8 @@ namespace RestauantBookingAPI.Middleware
             {
                 _logger.LogError($"Something went wrong: {ex}");
                 await HandleExceptionAsync(httpContext, ex);
-
-
             }
+
         }
         private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
@@ -49,20 +51,19 @@ namespace RestauantBookingAPI.Middleware
             context.Response.StatusCode = (int)statusCode;
             var response = new
             {
-                error = new
-                {
+           
                     message = message,
                     statusCode = (int)statusCode,
                     timestamp = DateTime.UtcNow
-                }
+                
             };
 
-            var jsonResponse = JsonSerializer.Serialize(response, new JsonSerializerOptions
+            await context.Response.WriteAsync(JsonSerializer.Serialize(response, new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
-            await context.Response.WriteAsync(jsonResponse);
+            }));
         }
+        
     }
 
     // Extension method used to add the middleware to the HTTP request pipeline.
