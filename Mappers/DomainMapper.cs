@@ -105,7 +105,7 @@ namespace RestaurantBookingAPI.Mappers
                 FullName = customer.FullName,
                 Email = customer.Email,
                 PhoneNumber = customer.PhoneNumber
-                // Note: TotalBookings would need to be calculated by service layer
+                
             };
         }
 
@@ -118,6 +118,30 @@ namespace RestaurantBookingAPI.Mappers
                 Email = customer.Email,
                 Phone = customer.PhoneNumber,
                 ActiveBookings = activeBookings
+            };
+        }
+        public static Customer ToCustomer(CreateCustomerDTO dto)
+        {
+            return new Customer
+            {
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                Email = dto.Email,
+                PhoneNumber = dto.PhoneNumber,
+                IsActive = true // Default for new customers
+            };
+        }
+
+        public static Customer ToCustomer(UpdateCustomerDTO dto)
+        {
+            return new Customer
+            {
+                Id = dto.Id,
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                Email = dto.Email,
+                PhoneNumber = dto.PhoneNumber,
+                IsActive = dto.IsActive
             };
         }
         #endregion
@@ -134,6 +158,19 @@ namespace RestaurantBookingAPI.Mappers
                 Category = menuItem.Category,
                 IsPopular = menuItem.IsPopular,
                 ImageUrl = menuItem.ImageUrl
+            };
+        }
+        public static MenuItem ToMenuItem(MenuItemDTO menuItem)
+        {
+            return new MenuItem
+            {
+                Id = menuItem.Id,
+                Name = menuItem.Name,
+                Description = menuItem.Description,
+                Price = menuItem.Price,
+                Category = menuItem.Category,
+                IsPopular = menuItem.IsPopular,
+                ImageUrl = menuItem.ImageUrl ?? string.Empty
             };
         }
         #endregion
