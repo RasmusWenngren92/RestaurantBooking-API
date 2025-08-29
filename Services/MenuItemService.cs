@@ -1,67 +1,49 @@
-﻿using RestaurantBookingAPI.Services.IServices;
-using RestaurantBookingAPI.Repositories.IRepositores;
+﻿using Microsoft.EntityFrameworkCore;
+using RestaurantBookingAPI.Data;
 using RestaurantBookingAPI.DTOs;
+using RestaurantBookingAPI.Mappers;
 using RestaurantBookingAPI.Models.Entities;
+using RestaurantBookingAPI.Repositories.IRepositores;
+using RestaurantBookingAPI.Services.IServices;
 
 namespace RestaurantBookingAPI.Services
 {
     public class MenuItemService : IMenuItemService
     {
+        private readonly RestaurantDBContext _context;
         private readonly IMenuItemRepository _menuItemRepository;
-        public MenuItemService(IMenuItemRepository menuItemRepository)
+        
+        public MenuItemService(IMenuItemRepository menuItemRepository, RestaurantDBContext context)
         {
-            _menuItemRepository = menuItemRepository; 
+            _menuItemRepository = menuItemRepository;
+            _context = context;
         }
         public async Task<IEnumerable<MenuItemDTO>> GetAllMenuItemsAsync()
         {
             var menuItems = await _menuItemRepository.GetAllMenuItemsAsync();
-            
-            var menuItemDTO = menuItems.Select(m => new MenuItemDTO
-            {
-                Id = m.Id,
-                Name = m.Name,
-                Description = m.Description,
-                Price = m.Price,
-                Category = m.Category,
-                IsPopular = m.IsPopular,
-                ImageUrl = m.ImageUrl
-            }).ToList();
+            return menuItems.Select(DomainMapper.ToMenuItemDTO);
 
-            return menuItemDTO;
         }
 
         public async Task<MenuItemDTO?> GetMenuItemByIdAsync(int menuItemId)
         {
             var menuItem = await _menuItemRepository.GetMenuItemByIdAsync(menuItemId);
-            if (menuItem == null)
-            {
-                return null;
-            }
-            return new MenuItemDTO
-            {
-                Id = menuItem.Id,
-                Name = menuItem.Name,
-                Description = menuItem.Description,
-                Price = menuItem.Price,
-                Category = menuItem.Category,
-                IsPopular = menuItem.IsPopular,
-                ImageUrl = menuItem.ImageUrl
-            };
+            return menuItem == null ? null : DomainMapper.ToMenuItemDTO(menuItem);
         }
         public async Task<int> AddMenuItemAsync(MenuItemDTO menuItemDTO)
         {
-            ArgumentNullException.ThrowIfNull(menuItemDTO);
-            ArgumentException.ThrowIfNullOrEmpty(menuItemDTO.Name);
-            ArgumentException.ThrowIfNullOrEmpty(menuItemDTO.Category);
-            var menuItem = new MenuItem
-            {
-                Name = menuItemDTO.Name,
-                Description = menuItemDTO.Description,
-                Price = menuItemDTO.Price,
-                Category = menuItemDTO.Category,
-                IsPopular = menuItemDTO.IsPopular,
-                ImageUrl = menuItemDTO.ImageUrl ?? string.Empty
-            };
+            if (menuItemDTO == null)
+                throw new ArgumentException("Menu item data is required");
+
+            if (string.IsNullOrEmpty(menuItemDTO.Name))
+                throw new ArgumentException("Menu item name is required");
+
+            if (string.IsNullOrEmpty(menuItemDTO.Category))
+                throw new ArgumentException("Menu item category is required");
+
+            if (menuItemDTO.Price <= 0)
+                throw new ArgumentException("Menu item price must be greater than zero");
+            var menuItem = DomainMapper.ToMenuItem(menuItemDTO);
             return await _menuItemRepository.AddMenuItemAsync(menuItem);
         }
         public async Task<bool> UpdateMenuItemAsync(MenuItemDTO menuItemDTO)
@@ -69,17 +51,17 @@ namespace RestaurantBookingAPI.Services
             ArgumentNullException.ThrowIfNull(menuItemDTO);
             ArgumentException.ThrowIfNullOrEmpty(menuItemDTO.Name);
             ArgumentException.ThrowIfNullOrEmpty(menuItemDTO.Category);
-            var menuItem = new MenuItem
-            {
-                Id = menuItemDTO.Id,
-                Name = menuItemDTO.Name,
-                Description = menuItemDTO.Description,
-                Price = menuItemDTO.Price,
-                Category = menuItemDTO.Category,
-                IsPopular = menuItemDTO.IsPopular,
-                ImageUrl = menuItemDTO.ImageUrl ?? string.Empty
-            };
-            return await _menuItemRepository.UpdateMenuItemAsync(menuItem);
+            var rowsAffected = await _context.MenuItems
+                .Where(m => m.Id == menuItemDTO.Id)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(m => m.Name, menuItemDTO.Name)
+                    .SetProperty(m => m.Description, menuItemDTO.Description)
+                    .SetProperty(m => m.Price, menuItemDTO.Price)
+                    .SetProperty(m => m.Category, menuItemDTO.Category)
+                    .SetProperty(m => m.IsPopular, menuItemDTO.IsPopular)
+                    .SetProperty(m => m.ImageUrl, menuItemDTO.ImageUrl ?? string.Empty));
+
+            return rowsAffected > 0;
         }
         public async Task<bool> DeleteMenuItemAsync(int menuItemId)
         {
