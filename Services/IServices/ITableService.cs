@@ -14,8 +14,10 @@ namespace RestaurantBookingAPI.Services.IServices
         Task<TableDTO> CreateTableAsync(CreateTableDTO createTableDto);
         Task<TableDTO> UpdateTableAsync(int id, UpdateTableDTO updateTableDto);
         Task<bool> DeleteTableAsync(int id);
+        Task<TableDTO?> GetTableWithBookingCountAsync(int id);
 
-       
+
+
         Task<IEnumerable<TableSummaryDTO>> GetTablesSummaryAsync();
         Task<IEnumerable<TableDTO>> GetAvailableTablesAsync();
         Task<IEnumerable<TableDTO>> GetTablesByCapacityAsync(int minCapacity);
