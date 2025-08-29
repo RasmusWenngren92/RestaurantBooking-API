@@ -1,5 +1,6 @@
 ﻿using RestauantBookingAPI.Models.Enums;
 using RestaurantBookingAPI.DTOs;
+using RestaurantBookingAPI.Mappers;
 using RestaurantBookingAPI.Models.Entities;
 using RestaurantBookingAPI.Repositories.IRepositores;
 using RestaurantBookingAPI.Services.IServices;
@@ -18,57 +19,28 @@ namespace RestaurantBookingAPI.Services
             _tableService = tableService;
             _customerRepository = customerRepository;
         }
-        private static BookingDTO MapToBookingDTO(Booking booking)
-        {
-            return new BookingDTO
-            {
-                Id = booking.Id,
-                CustomerId = booking.CustomerId,
-                TableId = booking.TableId,
-                StartDateTime = booking.StartDateTime,
-                Status = booking.Status,
-                CreatedAt = booking.CreatedAt,
-                UpdatedAt = booking.UpdatedAt,
-                NumberOfGuests = booking.NumberOfGuests,
-                CustomerName = booking.Customer?.FullName ?? string.Empty,
-                CustomerEmail = booking.Customer?.Email ?? string.Empty,
-                CustomerPhoneNumber = booking.Customer?.PhoneNumber ?? string.Empty,
-                TableNumber = booking.Table?.TableNumber ?? 0,
-                TableCapacity = booking.Table?.SeatingCapacity ?? 0
-            };
-        }
-        private static BookingSummaryDTO MapToBookingSummaryDTO(Booking booking)
-        {
-            return new BookingSummaryDTO
-            {
-                Id = booking.Id,
-                CustomerName = booking.Customer?.FullName ?? string.Empty,
-                TableNumber = booking.Table?.TableNumber ?? 0,
-                StartDateTime = booking.StartDateTime,
-                NumberOfGuests = booking.NumberOfGuests,
-                Status = booking.Status
-            };
-        }
+        
+
         public async Task<IEnumerable<BookingDTO>> GetAllBookingsAsync()
         {
             var bookings = await _bookingRepository.GetAllBookingsAsync();
-            return bookings.Select(MapToBookingDTO);
+            return bookings.Select(DomainMapper.ToBookingDTO);
         }
         public async Task<BookingDTO?> GetBookingByIdAsync(int id)
         {
             var booking = await _bookingRepository.GetBookingByIdAsync(id);
-            return booking != null ? MapToBookingDTO(booking) : null;
+            return booking != null ? DomainMapper.ToBookingDTO(booking) : null;
         }
         public async Task<IEnumerable<BookingDTO>> GetBookingsByCustomerAsync(int customerId)
         {
             var bookings = await _bookingRepository.GetBookingsByCustomerIdAsync(customerId);
-            return bookings.Select(MapToBookingDTO);
+            return bookings.Select(DomainMapper.ToBookingDTO);
         }
 
         public async Task<IEnumerable<BookingDTO>> GetBookingsByDateAsync(DateTime date)
         {
             var bookings = await _bookingRepository.GetBookingsByDateAsync(date);
-            return bookings.Select(MapToBookingDTO);
+            return bookings.Select(DomainMapper.ToBookingDTO);
         }
 
         public async Task<BookingDTO> CreateBookingAsync(CreateBookingDTO createBookingDto)
@@ -102,7 +74,7 @@ namespace RestaurantBookingAPI.Services
             };
             var createdBooking = await _bookingRepository.CreateBookingAsync(booking);
             var fullBooking = await _bookingRepository.GetBookingByIdAsync(createdBooking.Id);
-            return MapToBookingDTO(fullBooking!);
+            return DomainMapper.ToBookingDTO(fullBooking!);
         }
         public async Task<BookingDTO> UpdateBookingAsync(int id, UpdateBookingDTO updateBookingDto)
         {
@@ -150,7 +122,7 @@ namespace RestaurantBookingAPI.Services
             existingBooking.UpdatedAt = DateTime.UtcNow;
             var updatedBooking = await _bookingRepository.UpdateBookingAsync(existingBooking);
             var fullBooking = await _bookingRepository.GetBookingByIdAsync(updatedBooking.Id);
-            return MapToBookingDTO(fullBooking!);
+            return DomainMapper.ToBookingDTO(fullBooking!);
         }
 
         public async Task<bool> CancelBookingAsync(int id)
@@ -190,13 +162,13 @@ namespace RestaurantBookingAPI.Services
         public async Task<IEnumerable<BookingSummaryDTO>> GetTodayBookingsAsync()
         {
             var bookings = await _bookingRepository.GetBookingsByDateAsync(DateTime.Today);
-            return bookings.Select(MapToBookingSummaryDTO);
+            return bookings.Select(DomainMapper.ToBookingSummaryDTO);
         }
 
         public async Task<IEnumerable<BookingSummaryDTO>> GetActiveBookingsAsync()
         {
             var bookings = await _bookingRepository.GetActiveBookingsAsync();
-            return bookings.Select(MapToBookingSummaryDTO);
+            return bookings.Select(DomainMapper.ToBookingSummaryDTO);
         }
 
         public async Task<IEnumerable<BookingSummaryDTO>> GetUpcomingBookingsAsync(int days = 7)
@@ -206,7 +178,7 @@ namespace RestaurantBookingAPI.Services
 
             var bookings = await _bookingRepository.GetBookingsInTimeRangeAsync(startTime, endTime);
             return bookings.Where(b => b.Status == BookingStatus.Confirmed)
-                          .Select(MapToBookingSummaryDTO);
+                          .Select(DomainMapper.ToBookingSummaryDTO);
         }
 
         public async Task<bool> CanModifyBookingAsync(int bookingId)
