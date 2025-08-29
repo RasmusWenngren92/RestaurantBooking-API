@@ -1,5 +1,7 @@
 ﻿using RestaurantBookingAPI.DTOs;
+using RestaurantBookingAPI.Mappers;
 using RestaurantBookingAPI.Models.Entities;
+using RestaurantBookingAPI.Repositories;
 using RestaurantBookingAPI.Repositories.IRepositores;
 using RestaurantBookingAPI.Services.IServices;
 
@@ -8,78 +10,78 @@ namespace RestaurantBookingAPI.Services
     public class CustomerService : ICustomerService
     {
         private readonly ICustomerRepository _customerRepository;
-        public CustomerService(ICustomerRepository customerRepository)
+        private readonly IBookingRepository _bookingRepository;
+
+        public CustomerService(ICustomerRepository customerRepository, IBookingRepository bookingRepository)
         {
             _customerRepository = customerRepository;
+            _bookingRepository = bookingRepository;
         }
-        public async Task<List<CustomerDTO>> GetAllCustomersAsync()
+
+        public async Task<IEnumerable<CustomerDTO>> GetAllCustomersAsync()
         {
             var customers = await _customerRepository.GetAllCustomersAsync();
-            var customerDTO = customers.Select(c => new CustomerDTO
-            {
-                Id = c.Id,
-                FirstName = c.FirstName,
-                LastName = c.LastName,
-                Email = c.Email,
-                PhoneNumber = c.PhoneNumber
-            }).ToList();
-            return customerDTO;
+            return customers.Select(DomainMapper.ToCustomerDTO);
         }
+
         public async Task<CustomerDTO?> GetCustomerByIdAsync(int customerId)
         {
             var customer = await _customerRepository.GetCustomerByIdAsync(customerId);
-            if (customer == null)
-            {
-                return null;
-            }
-            return new CustomerDTO
-            {
-                Id = customer.Id,
-                FirstName = customer.FirstName,
-                LastName = customer.LastName,
-                Email = customer.Email,
-                PhoneNumber = customer.PhoneNumber
-            };
+            return customer != null ? DomainMapper.ToCustomerDTO(customer) : null;
         }
-        public async Task<int> AddCustomerAsync(CustomerDTO customerDTO)
+        public async Task<CustomerDTO?> GetCustomerWithBookingCountAsync(int customerId)
         {
-            ArgumentNullException.ThrowIfNull(customerDTO);
-            ArgumentException.ThrowIfNullOrEmpty(customerDTO.FirstName);
-            ArgumentException.ThrowIfNullOrEmpty(customerDTO.LastName);
-            ArgumentException.ThrowIfNullOrEmpty(customerDTO.Email);
-            ArgumentException.ThrowIfNullOrEmpty(customerDTO.PhoneNumber);
-            var customer = new Customer
-            {
-                FirstName = customerDTO.FirstName,
-                LastName = customerDTO.LastName,
-                Email = customerDTO.Email,
-                PhoneNumber = customerDTO.PhoneNumber
-            };
-            return await _customerRepository.AddCustomerAsync(customer);
+            var customer = await _customerRepository.GetCustomerByIdAsync(customerId);
+            if (customer == null) return null;
+
+            // Expensive calculation only when specifically requested
+            var bookingCount = await _bookingRepository.GetBookingsByCustomerIdAsync(customerId);
+            var totalBookings = bookingCount.Count();
+
+            var customerDto = DomainMapper.ToCustomerDTO(customer);
+            customerDto.TotalBookings = totalBookings;
+            return customerDto;
         }
-        public async Task<bool> UpdateCustomerAsync(CustomerDTO customerDTO)
+
+        public async Task<bool> AddCustomerAsync(CreateCustomerDTO customerDTO)
         {
-            ArgumentNullException.ThrowIfNull(customerDTO);
-            ArgumentException.ThrowIfNullOrEmpty(customerDTO.FirstName);
-            ArgumentException.ThrowIfNullOrEmpty(customerDTO.LastName);
-            ArgumentException.ThrowIfNullOrEmpty(customerDTO.Email);
-            ArgumentException.ThrowIfNullOrEmpty(customerDTO.PhoneNumber);
-            var customer = new Customer
-            {
-                Id = customerDTO.Id,
-                FirstName = customerDTO.FirstName,
-                LastName = customerDTO.LastName,
-                Email = customerDTO.Email,
-                PhoneNumber = customerDTO.PhoneNumber
-            };
+            if (customerDTO == null)
+                throw new ArgumentException("Customer data is required");
+
+            if (string.IsNullOrEmpty(customerDTO.FirstName))
+                throw new ArgumentException("First name is required");
+
+            if (string.IsNullOrEmpty(customerDTO.LastName))
+                throw new ArgumentException("Last name is required");
+
+            if (string.IsNullOrEmpty(customerDTO.Email))
+                throw new ArgumentException("Email is required");
+
+            var customer = DomainMapper.ToCustomer(customerDTO);
+            var customerId = await _customerRepository.AddCustomerAsync(customer);
+            return customerId > 0;
+        }
+
+        public async Task<bool> UpdateCustomerAsync(UpdateCustomerDTO customerDTO)
+        {
+            if (customerDTO == null)
+                throw new ArgumentException("Customer data is required");
+
+            if (customerDTO.Id <= 0)
+                throw new ArgumentException("Invalid customer ID");
+
+            if (string.IsNullOrEmpty(customerDTO.FirstName))
+                throw new ArgumentException("First name is required");
+
+            var customer = DomainMapper.ToCustomer(customerDTO);
             return await _customerRepository.UpdateCustomerAsync(customer);
         }
+
         public async Task<bool> DeleteCustomerAsync(int customerId)
         {
             if (customerId <= 0)
-            {
                 throw new ArgumentException("Invalid customer ID");
-            }
+
             return await _customerRepository.DeleteCustomerAsync(customerId);
         }
     }
