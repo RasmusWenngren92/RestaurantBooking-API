@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using RestaurantBookingAPI.Data;
 
-namespace RestauantBookingAPI.Middleware
+namespace RestaurantBookingAPI.Middleware
 {
     
     public class GlobalExceptionMiddleware

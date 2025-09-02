@@ -5,7 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using RestaurantBookingAPI.Models.Entities;
 using RestaurantBookingAPI.Services.IServices;
 
-namespace RestaruantBookingAPI.Services
+namespace RestaurantBookingAPI.Services
 {
     public class TokenService : ITokenService
     {

@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RestauantBookingAPI.Models.Enums;
+using RestaurantBookingAPI.Models.Enums;
 using RestaurantBookingAPI.Data;
 using RestaurantBookingAPI.Models.Entities;
 using RestaurantBookingAPI.Repositories.IRepositores;

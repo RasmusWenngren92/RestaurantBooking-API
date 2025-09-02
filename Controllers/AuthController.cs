@@ -11,7 +11,7 @@ using RestaurantBookingAPI.DTOs;
 using RestaurantBookingAPI.Models.Entities;
 using RestaurantBookingAPI.Services.IServices;
 
-namespace RestauantBookingAPI.Controllers
+namespace RestaurantBookingAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

@@ -1,4 +1,4 @@
-﻿using RestauantBookingAPI.Models.Enums;
+﻿using RestaurantBookingAPI.Models.Enums;
 using RestaurantBookingAPI.DTOs;
 using RestaurantBookingAPI.Mappers;
 using RestaurantBookingAPI.Models.Entities;

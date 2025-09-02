@@ -1,4 +1,4 @@
-﻿namespace RestauantBookingAPI.Models.Enums
+﻿namespace RestaurantBookingAPI.Models.Enums
 {
     public enum BookingStatus
     {

@@ -3,23 +3,23 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using RestaruantBookingAPI.Services;
-using RestauantBookingAPI.Middleware;
+using RestaurantBookingAPI.Middleware;
+using RestaurantBookingAPI.Services;
+using RestaurantBookingAPI.Services.IServices;
 using RestaurantBookingAPI.Data;
 using RestaurantBookingAPI.Repositories;
 using RestaurantBookingAPI.Repositories.IRepositores;
-using RestaurantBookingAPI.Services;
-using RestaurantBookingAPI.Services.IServices;
 
 
 namespace RestaurantBookingAPI
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            
+
+
 
             // Add services to the container.
             builder.Services.AddDbContext<RestaurantDBContext>(options =>
@@ -35,6 +35,7 @@ namespace RestaurantBookingAPI
             builder.Services.AddScoped<ICustomerService, CustomerService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddScoped<IMenuSeedService, MenuSeedService>();
 
             builder.Services.AddControllers();
             builder.Services.Configure<ApiBehaviorOptions>(options =>
@@ -77,6 +78,18 @@ namespace RestaurantBookingAPI
             builder.Services.AddAuthorization();
 
             var app = builder.Build();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<RestaurantDBContext>();
+
+                if (builder.Environment.IsDevelopment())
+                {
+                    dbContext.Database.Migrate();
+                    var menuSeedService = scope.ServiceProvider.GetRequiredService<IMenuSeedService>();
+                    await menuSeedService.SeedMenu(); 
+                }
+            }
             app.UseGlobalExceptionMiddleware();
 
             // Configure the HTTP request pipeline.

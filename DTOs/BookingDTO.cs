@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using RestauantBookingAPI.Models.Enums;
+using RestaurantBookingAPI.Models.Enums;
 using RestaurantBookingAPI.Models.Entities;
 
 namespace RestaurantBookingAPI.DTOs
