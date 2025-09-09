@@ -27,7 +27,7 @@ namespace RestaurantBookingAPI.Data
                 entity.Property(e => e.Description).HasMaxLength(500);
                 entity.Property(e => e.Price).HasColumnType("decimal(10,2)").IsRequired();
                 entity.Property(e => e.Category).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.ImageUrl).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.ImageUrl).IsRequired().HasMaxLength(500);
                 entity.Property(e => e.IsPopular).HasDefaultValue(false);
 
                 entity.HasIndex(e => e.Category);
