@@ -46,7 +46,7 @@ namespace RestaurantBookingAPI.Services
             var menuItem = DomainMapper.ToMenuItem(menuItemDTO);
             return await _menuItemRepository.AddMenuItemAsync(menuItem);
         }
-        public async Task<bool> UpdateMenuItemAsync(MenuItemDTO menuItemDTO)
+        public async Task<bool> UpdateMenuItemAsync(int id, MenuItemDTO menuItemDTO)
         {
             ArgumentNullException.ThrowIfNull(menuItemDTO);
             ArgumentException.ThrowIfNullOrEmpty(menuItemDTO.Name);

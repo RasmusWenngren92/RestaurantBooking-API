@@ -62,7 +62,7 @@ namespace RestaurantBookingAPI.Services
             return customerId > 0;
         }
 
-        public async Task<bool> UpdateCustomerAsync(UpdateCustomerDTO customerDTO)
+        public async Task<bool> UpdateCustomerAsync(int id, UpdateCustomerDTO customerDTO)
         {
             if (customerDTO == null)
                 throw new ArgumentException("Customer data is required");
