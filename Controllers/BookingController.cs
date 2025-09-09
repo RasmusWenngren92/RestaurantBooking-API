@@ -18,35 +18,35 @@ namespace RestaurantBookingAPI.Controllers
             _bookingService = bookingService;
         }
 
-        [Authorize]
-        [HttpGet("GetAllBookings")]
+        
+        [HttpGet]
         public async Task<ActionResult<List<BookingDTO>>> GetAllBookings()
         {
             var bookings = await _bookingService.GetAllBookingsAsync();
             return Ok(bookings);                                                                       
         }
         [Authorize]
-        [HttpGet("GetBookingById/{bookingId}")]
+        [HttpGet("{bookingId}")]
         public async Task<ActionResult<BookingDTO>> GetBookingById(int bookingId)
         {
             var booking = await _bookingService.GetBookingByIdAsync(bookingId);
             return Ok(booking);
         }
-        [HttpPost("CreateBooking")]
+        [HttpPost]
         public async Task<ActionResult<int>> CreateBooking(CreateBookingDTO createBookingDTO)
         {
             var createdBooking = await _bookingService.CreateBookingAsync(createBookingDTO);
             return CreatedAtAction(nameof(GetBookingById), new { bookingId = createdBooking.Id }, createdBooking);
         }
         [Authorize]
-        [HttpPut("UpdateBooking")]
-        public async Task<ActionResult<bool>> UpdateBooking(UpdateBookingDTO updateBookingDTO, int id)
+        [HttpPut("{id}")]
+        public async Task<ActionResult<bool>> UpdateBooking(int id, UpdateBookingDTO updateBookingDTO)
         {
             var updatedBooking = await _bookingService.UpdateBookingAsync(id, updateBookingDTO);
             return Ok(updatedBooking);
         }
         [Authorize]
-        [HttpDelete("DeleteBooking/{bookingId}")]
+        [HttpDelete("{bookingId}")]
         public async Task<ActionResult<bool>> DeleteBooking(int bookingId)
         {
             var result = await _bookingService.DeleteBookingAsync(bookingId);
