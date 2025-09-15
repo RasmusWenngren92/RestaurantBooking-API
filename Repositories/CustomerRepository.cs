@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RestaurantBookingAPI.Data;
+using RestaurantBookingAPI.DTOs;
 using RestaurantBookingAPI.Models.Entities;
 using RestaurantBookingAPI.Repositories.IRepositores;
 
@@ -27,15 +28,22 @@ namespace RestaurantBookingAPI.Repositories
             await _context.SaveChangesAsync();
             return customer.Id;
         }
-        public async Task<bool> UpdateCustomerAsync(Customer customer)
+        public async Task<Customer> UpdateCustomerAsync(Customer customer)
         {
             _context.Customers.Update(customer);
-            var result = await _context.SaveChangesAsync();
-            if(result != 0)
+            await _context.SaveChangesAsync();
+
+            var updatedCustomer = await _context.Customers
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == customer.Id);
+
+            if (updatedCustomer == null)
             {
-                return true;
+
+                throw new InvalidOperationException("Customer not found after update");
             }
-            return false;
+            return updatedCustomer;
+            
         }
         public async Task<bool> DeleteCustomerAsync(int customerId)
         {

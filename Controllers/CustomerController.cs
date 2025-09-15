@@ -26,12 +26,12 @@ namespace RestaurantBookingAPI.Controllers
         Ok(await _customerService.GetCustomerByIdAsync(customerId));
 
         [HttpPost]
-        public async Task<ActionResult<bool>> AddCustomer([FromBody] CreateCustomerDTO dto) =>
+        public async Task<ActionResult<CustomerDTO>> AddCustomer([FromBody] CreateCustomerDTO dto) =>
         Ok(await _customerService.AddCustomerAsync(dto));
 
         [Authorize]
         [HttpPut("{id}")]
-        public async Task<ActionResult<bool>> UpdateCustomer(int id, UpdateCustomerDTO customerDTO)
+        public async Task<ActionResult<CustomerDTO>> UpdateCustomer(int id, UpdateCustomerDTO customerDTO)
         {
             var result = await _customerService.UpdateCustomerAsync(id, customerDTO);
             return Ok(result);
@@ -40,5 +40,9 @@ namespace RestaurantBookingAPI.Controllers
         [HttpDelete("{customerId}")]
         public async Task<ActionResult<bool>> DeleteCustomer(int customerId) =>
         Ok(await _customerService.DeleteCustomerAsync(customerId));
+        [AllowAnonymous]
+        [HttpGet("search")]
+        public async Task<ActionResult<CustomerDTO>> GetCustomerByEmail([FromQuery] string email) =>
+            Ok(await _customerService.GetCustomerByEmailAsync(email));
     }
 }

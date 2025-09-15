@@ -65,9 +65,8 @@ namespace RestaurantBookingAPI.Mappers
             return new BookingDTO
             {
                 Id = booking.Id,
-                CustomerId = booking.CustomerId,
-                TableId = booking.TableId,
                 StartDateTime = booking.StartDateTime,
+                EndDateTime = booking.EndDateTime,
                 Status = booking.Status,
                 CreatedAt = booking.CreatedAt,
                 UpdatedAt = booking.UpdatedAt,
@@ -124,6 +123,7 @@ namespace RestaurantBookingAPI.Mappers
         {
             return new Customer
             {
+                Id= dto.Id,
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 Email = dto.Email,

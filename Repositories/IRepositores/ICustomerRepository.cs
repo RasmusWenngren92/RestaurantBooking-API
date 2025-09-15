@@ -1,4 +1,5 @@
-﻿using RestaurantBookingAPI.Models.Entities;
+﻿using RestaurantBookingAPI.DTOs;
+using RestaurantBookingAPI.Models.Entities;
 
 namespace RestaurantBookingAPI.Repositories.IRepositores
 {
@@ -7,7 +8,7 @@ namespace RestaurantBookingAPI.Repositories.IRepositores
         Task<IEnumerable<Customer>> GetAllCustomersAsync();
         Task<Customer?> GetCustomerByIdAsync(int customerId);
         Task<int> AddCustomerAsync(Customer customer);
-        Task<bool> UpdateCustomerAsync(Customer customer);
+        Task<Customer> UpdateCustomerAsync(Customer customerDTO);
         Task<bool> DeleteCustomerAsync(int customerId);
         Task<Customer?> GetCustomerByEmailAsync(string email);
     }

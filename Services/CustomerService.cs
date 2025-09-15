@@ -43,7 +43,7 @@ namespace RestaurantBookingAPI.Services
             return customerDto;
         }
 
-        public async Task<bool> AddCustomerAsync(CreateCustomerDTO customerDTO)
+        public async Task<CustomerDTO> AddCustomerAsync(CreateCustomerDTO customerDTO)
         {
             if (customerDTO == null)
                 throw new ArgumentException("Customer data is required");
@@ -56,13 +56,14 @@ namespace RestaurantBookingAPI.Services
 
             if (string.IsNullOrEmpty(customerDTO.Email))
                 throw new ArgumentException("Email is required");
-
             var customer = DomainMapper.ToCustomer(customerDTO);
             var customerId = await _customerRepository.AddCustomerAsync(customer);
-            return customerId > 0;
+
+            var createdCustomer = await _customerRepository.GetCustomerByIdAsync(customerId);
+            return DomainMapper.ToCustomerDTO(createdCustomer!);
         }
 
-        public async Task<bool> UpdateCustomerAsync(int id, UpdateCustomerDTO customerDTO)
+        public async Task<CustomerDTO> UpdateCustomerAsync(int id, UpdateCustomerDTO customerDTO)
         {
             if (customerDTO == null)
                 throw new ArgumentException("Customer data is required");
@@ -74,7 +75,8 @@ namespace RestaurantBookingAPI.Services
                 throw new ArgumentException("First name is required");
 
             var customer = DomainMapper.ToCustomer(customerDTO);
-            return await _customerRepository.UpdateCustomerAsync(customer);
+            var updatedCustomer = await _customerRepository.UpdateCustomerAsync(customer);
+            return DomainMapper.ToCustomerDTO(updatedCustomer);
         }
 
         public async Task<bool> DeleteCustomerAsync(int customerId)
@@ -83,6 +85,14 @@ namespace RestaurantBookingAPI.Services
                 throw new ArgumentException("Invalid customer ID");
 
             return await _customerRepository.DeleteCustomerAsync(customerId);
+        }
+
+        public async Task<CustomerDTO?> GetCustomerByEmailAsync(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+                throw new ArgumentException("Email is required");
+            var customer = await _customerRepository.GetCustomerByEmailAsync(email);
+            return customer != null ? DomainMapper.ToCustomerDTO(customer) : null;
         }
     }
 }
