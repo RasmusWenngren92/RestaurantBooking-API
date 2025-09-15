@@ -23,7 +23,7 @@ namespace RestaurantBookingAPI.Controllers
             _authService = authService;
         }
 
-        [HttpPost("login")]
+        [HttpPost("Login")]
         public async Task<ActionResult<AuthResponseDTO>> Login(LoginAdminDTO loginDto)
         {
             
@@ -31,7 +31,7 @@ namespace RestaurantBookingAPI.Controllers
             return Ok(message);
         }
 
-        [HttpPost("register")]
+        [HttpPost("Register")]
         public async Task<ActionResult<bool>> Register(AdminRegisterDTO registerDto)
         {
             

@@ -21,18 +21,18 @@ namespace RestaurantBookingAPI.Services
             var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not configured"));
 
 
-            var claims = new[]
-{
-                new Claim(ClaimTypes.Name, admin.Username),
+            var claims = new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.Name, admin.FullName),
                 new Claim(ClaimTypes.Email, admin.Email),
                 new Claim(ClaimTypes.Role, admin.Role),
                 new Claim(ClaimTypes.NameIdentifier, admin.Id.ToString())
-            };
+            });
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(1), // 1 hour expiration
+                Expires = DateTime.UtcNow.AddHours(1), 
                 Issuer = _configuration["Jwt:Issuer"],
                 Audience = _configuration["Jwt:Audience"],
                 SigningCredentials = new SigningCredentials(

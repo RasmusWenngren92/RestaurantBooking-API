@@ -116,13 +116,12 @@ namespace RestaurantBookingAPI.Data
                 // Primary Key
                 entity.HasKey(a => a.Id);
 
-                entity.Property(a => a.Username)
+                entity.Property(a => a.FirstName)
                     .IsRequired()
                     .HasMaxLength(50);
-
-                entity.HasIndex(a => a.Username)
-                    .IsUnique()
-                    .HasDatabaseName("IX_Admin_Username"); 
+                entity.Property(a => a.LastName)
+                    .IsRequired()
+                    .HasMaxLength(50);
 
                 entity.Property(a => a.Email)
                     .IsRequired()

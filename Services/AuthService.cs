@@ -20,7 +20,7 @@ namespace RestaurantBookingAPI.Services
         public async Task<AuthResponseDTO> LoginAsync(LoginAdminDTO loginDto)
         {
             // Input validation
-            if (string.IsNullOrWhiteSpace(loginDto.Username))
+            if (string.IsNullOrWhiteSpace(loginDto.Email))
                 throw new ArgumentException("Username is required");
 
             if (string.IsNullOrWhiteSpace(loginDto.Password))
@@ -28,7 +28,7 @@ namespace RestaurantBookingAPI.Services
 
             // Find admin by username - Direct DbContext access
             var admin = await _context.Admins
-                .FirstOrDefaultAsync(a => a.Username == loginDto.Username);
+                .FirstOrDefaultAsync(a => a.Email == loginDto.Email);
 
             if (admin == null)
             {
@@ -47,7 +47,7 @@ namespace RestaurantBookingAPI.Services
             return new AuthResponseDTO
             {
                 Token = token,
-                Username = admin.Username,
+                Email = admin.Email,
                 ExpiresAt = DateTime.UtcNow.AddHours(1)
             };
         }
@@ -55,7 +55,7 @@ namespace RestaurantBookingAPI.Services
         public async Task<bool> RegisterAsync(AdminRegisterDTO registerDto)
         {
             // Input validation
-            if (string.IsNullOrWhiteSpace(registerDto.Username))
+            if (string.IsNullOrWhiteSpace(registerDto.FullName))
                 throw new ArgumentException("Username is required");
 
             if (string.IsNullOrWhiteSpace(registerDto.Password))
@@ -66,7 +66,7 @@ namespace RestaurantBookingAPI.Services
 
             // Check if admin already exists - Direct DbContext access
             bool adminExists = await _context.Admins
-                .AnyAsync(a => a.Username == registerDto.Username || a.Email == registerDto.Email);
+                .AnyAsync(a => a.FullName == registerDto.FullName || a.Email == registerDto.Email);
 
             if (adminExists)
             {
@@ -79,9 +79,11 @@ namespace RestaurantBookingAPI.Services
             // Create and save admin - Direct DbContext access
             var admin = new Admin
             {
-                Username = registerDto.Username,
+                FirstName = registerDto.FirstName,
+                LastName = registerDto.LastName,
                 Email = registerDto.Email,
-                PasswordHash = passwordHash
+                PasswordHash = passwordHash,
+                Role = "Admin"
             };
 
             _context.Admins.Add(admin);
