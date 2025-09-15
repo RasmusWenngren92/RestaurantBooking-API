@@ -7,7 +7,7 @@ using RestaurantBookingAPI.Services.IServices;
 
 namespace RestaurantBookingAPI.Controllers
 {
-    
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class TableController : ControllerBase
@@ -28,7 +28,7 @@ namespace RestaurantBookingAPI.Controllers
         public async Task<ActionResult<TableDTO>> GetTableById(int id) =>
             Ok(await _tableService.GetTableByIdAsync(id));
 
-        [Authorize]
+        
         [HttpPost]
         public async Task<ActionResult<TableDTO>> CreateTable([FromBody] CreateTableDTO dto)
         {
@@ -36,12 +36,12 @@ namespace RestaurantBookingAPI.Controllers
             return CreatedAtAction(nameof(GetTableById), new { id = created.Id }, created);
         }
 
-        [Authorize]
+        
         [HttpPut("{tableNumber}")]
         public async Task<ActionResult<TableDTO>> UpdateTable(int tableNumber, [FromBody] UpdateTableDTO dto) =>
             Ok(await _tableService.UpdateTableAsync(tableNumber, dto));
 
-        [Authorize]
+        
         [HttpDelete("{id}")]
         public async Task<ActionResult<bool>> DeleteTable(int id) =>
             Ok(await _tableService.DeleteTableAsync(id));
@@ -58,7 +58,7 @@ namespace RestaurantBookingAPI.Controllers
         public async Task<ActionResult<IEnumerable<TableDTO>>> GetTablesByCapacity(int minCapacity) =>
             Ok(await _tableService.GetTablesByCapacityAsync(minCapacity));
 
-        [Authorize]
+        
         [HttpGet("summary")]
         public async Task<ActionResult<IEnumerable<TableSummaryDTO>>> GetTablesSummary() =>
             Ok(await _tableService.GetTablesSummaryAsync());
@@ -71,7 +71,7 @@ namespace RestaurantBookingAPI.Controllers
         public async Task<ActionResult<TableDTO>> GetTableByNumber(int tableNumber) =>
             Ok(await _tableService.GetTableByNumberAsync(tableNumber));
 
-        [Authorize]
+       
         [HttpGet("{id}/with-booking-count")]
         public async Task<ActionResult<TableDTO>> GetTableWithBookingCount(int id)
         {

@@ -19,7 +19,7 @@ namespace RestaurantBookingAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<List<MenuItemDTO>>> GetAllMenuItems() =>
         Ok(await _menuItemService.GetAllMenuItemsAsync());
-
+        [Authorize]
         [HttpGet("{menuItemId}")]
         public async Task<ActionResult<MenuItemDTO>> GetMenuItemById(int menuItemId) =>
         Ok(await _menuItemService.GetMenuItemByIdAsync(menuItemId));
