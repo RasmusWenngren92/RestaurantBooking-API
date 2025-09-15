@@ -197,5 +197,85 @@ namespace RestaurantBookingAPI.Services
             return true;
         }
 
+        public async Task<List<DateTime>> GetAvailableDatesAsync(int partySize, int daysAhead = 31)
+        {
+            if (partySize < 1)
+                throw new ArgumentException("Party size must be at least 1.");
+
+            if (partySize > 8)
+                throw new ArgumentException("For parties larger than 8, please contact the restaurant directly.");
+
+            if (daysAhead < 1 || daysAhead > 365)
+                throw new ArgumentException("Days ahead must be between 1 and 365.");
+
+            var availableDates = new List<DateTime>();
+            var startDate = DateTime.Today.AddDays(1); 
+
+            for (int i = 0; i < daysAhead; i++)
+            {
+                var checkDate = startDate.AddDays(i);
+
+                
+                var validation = await _tableService.ValidateBookingTimeAsync(
+                    checkDate.Date.AddHours(12), 
+                    partySize);
+
+                if (!validation.IsValid && validation.ErrorMessage.Contains("Sunday"))
+                    continue; 
+
+                if (!validation.IsValid && validation.ErrorMessage.Contains("Party size"))
+                    break; 
+
+                
+                var hasAvailableSlots = await HasAvailableSlotsForDateAsync(checkDate, partySize);
+                if (hasAvailableSlots)
+                {
+                    availableDates.Add(checkDate);
+                }
+            }
+
+            return availableDates;
+        }
+
+        public async Task<List<TimeSpan>> GetAvailableTimeSlotsAsync(DateTime date, int partySize)
+        {
+
+            if (partySize < 1)
+                throw new ArgumentException("Party size must be at least 1.");
+
+            if (partySize > 8)
+                throw new ArgumentException("For parties larger than 8, please contact the restaurant directly.");
+            var availableSlots = new List<TimeSpan>();
+
+            // Restaurant hours: 10 AM - 9:30 PM (last 30-min slot)
+            var startTime = new TimeSpan(10, 0, 0);
+            var endTime = new TimeSpan(21, 30, 0);
+
+            for (var time = startTime; time <= endTime; time = time.Add(TimeSpan.FromMinutes(30)))
+            {
+                var requestedDateTime = date.Date.Add(time);
+
+                
+                var validation = await _tableService.ValidateBookingTimeAsync(requestedDateTime, partySize);
+                if (!validation.IsValid)
+                    continue;
+ 
+                var availableTables = await _bookingRepository.GetAllAvailableTablesAsync(requestedDateTime, partySize);
+
+                if (availableTables.Any())
+                {
+                    availableSlots.Add(time);
+                }
+            }
+
+            return availableSlots;
+        }
+
+        private async Task<bool> HasAvailableSlotsForDateAsync(DateTime date, int partySize)
+        {
+            var timeSlots = await GetAvailableTimeSlotsAsync(date, partySize);
+            return timeSlots.Any();
+        }
+
     }
 }

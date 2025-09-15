@@ -22,11 +22,13 @@ namespace RestaurantBookingAPI.Services.IServices
         Task<IEnumerable<BookingSummaryDTO>> GetActiveBookingsAsync();
         Task<IEnumerable<BookingSummaryDTO>> GetUpcomingBookingsAsync(int days = 7);
 
-        
+        Task<List<TimeSpan>> GetAvailableTimeSlotsAsync(DateTime date, int partySize);
+        Task<List<DateTime>> GetAvailableDatesAsync(int partySize, int daysAhead = 31);
+
+
         Task<bool> MarkBookingAsCompletedAsync(int id);
         Task<bool> MarkBookingAsNoShowAsync(int id);
 
-       
         Task<bool> CanModifyBookingAsync(int bookingId);
     }
 }

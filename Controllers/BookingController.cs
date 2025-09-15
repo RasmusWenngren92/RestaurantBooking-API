@@ -18,7 +18,7 @@ namespace RestaurantBookingAPI.Controllers
             _bookingService = bookingService;
         }
 
-        
+        [Authorize] 
         [HttpGet]
         public async Task<ActionResult<List<BookingDTO>>> GetAllBookings()
         {
@@ -51,6 +51,23 @@ namespace RestaurantBookingAPI.Controllers
         {
             var result = await _bookingService.DeleteBookingAsync(bookingId);
             return Ok(result);
+        }
+        [AllowAnonymous]
+        [HttpGet("available-dates")]
+        public async Task<ActionResult<IEnumerable<string>>>GetAvailableDates([FromQuery] int partySize, [FromQuery] int daysAhead = 31)
+        {
+             var availableDates = await _bookingService.GetAvailableDatesAsync(partySize, daysAhead);
+             var formattedDates = availableDates.Select(date => date.ToString("yyyy-MM-dd")).ToList();
+            return Ok(formattedDates);
+        }
+        [AllowAnonymous]
+        [HttpGet("available-timeslots")]
+        public async Task<ActionResult<IEnumerable<string>>> GetAvailableTimeSlots([FromQuery] string date, [FromQuery] int partySize)
+        {
+            var parsedDate = DateTime.Parse(date);
+            var availableTimeSlots = await _bookingService.GetAvailableTimeSlotsAsync(parsedDate, partySize);
+            var formattedTimeSlots = availableTimeSlots.Select(time => time.ToString(@"hh\:mm")).ToList();
+            return Ok(formattedTimeSlots);
         }
     }
 }
