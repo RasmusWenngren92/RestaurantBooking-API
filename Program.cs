@@ -91,7 +91,7 @@ namespace RestaurantBookingAPI
                     await menuSeedService.SeedMenu(); 
                 }
             }
-            app.UseGlobalExceptionMiddleware();
+            
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -103,7 +103,7 @@ namespace RestaurantBookingAPI
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
-
+            app.UseGlobalExceptionMiddleware();
             app.MapControllers();
 
             app.Run();

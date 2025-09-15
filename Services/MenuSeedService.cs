@@ -17,8 +17,8 @@ namespace RestaurantBookingAPI.Services
 
         public async Task<int> SeedMenu()
         {
-            _context.MenuItems.RemoveRange(_context.MenuItems);
-            await _context.SaveChangesAsync();
+            //_context.MenuItems.RemoveRange(_context.MenuItems);
+            //await _context.SaveChangesAsync();
             // Check if menu items already exist
             if (_context.MenuItems.Any())
             {
