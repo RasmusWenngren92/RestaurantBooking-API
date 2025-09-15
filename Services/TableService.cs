@@ -29,6 +29,7 @@ namespace RestaurantBookingAPI.Services
             var tables = await _tableRepository.GetAllTablesAsync();
             return tables.Select(DomainMapper.ToTableDTO);
         }
+
         public async Task<TableDTO> CreateTableAsync(CreateTableDTO createTableDto)
         {
             // Validate table number doesn't exist
