@@ -30,8 +30,6 @@ namespace RestaurantBookingAPI.DTOs
     public class BookingDTO
     {
         public int Id { get; set; }
-        public int CustomerId { get; set; }
-        public int TableId { get; set; }
         public DateTime StartDateTime { get; set; }
         public int NumberOfGuests { get; set; }
         public BookingStatus Status { get; set; }
